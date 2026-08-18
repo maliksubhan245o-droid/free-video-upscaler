@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { aiUpscaleFrame, loadAiSession, type AiSession } from "@/lib/aiUpscaler";
 
 const logoUrl = "/manus-storage/signal-frame-logo_e57c72af.png";
 const emptyArt = "/manus-storage/calibration-empty-state_2ddaaed8.png";
@@ -53,6 +54,8 @@ export default function Home() {
   const [duration, setDuration] = useState(0);
   const [outputSize, setOutputSize] = useState({ width: 0, height: 0 });
   const [dragActive, setDragActive] = useState(false);
+  const [aiSession, setAiSession] = useState<AiSession | null>(null);
+  const [aiStatus, setAiStatus] = useState("AI READY ON DEMAND");
 
   useEffect(() => () => {
     if (sourceUrl) URL.revokeObjectURL(sourceUrl);
@@ -90,6 +93,18 @@ export default function Home() {
       return;
     }
     setStage("processing"); setProgress(1);
+    let activeAi = aiSession;
+    if (enhance && !activeAi) {
+      try {
+        setAiStatus("LOADING REAL-ESRGAN");
+        activeAi = await loadAiSession(setAiStatus);
+        setAiSession(activeAi);
+      } catch {
+        setAiStatus("AI UNAVAILABLE — USING CANVAS");
+        toast("AI model could not load; continuing with the free browser fallback.");
+      }
+    }
+    if (activeAi) setAiStatus(`REAL-ESRGAN / ${activeAi.runtime.toUpperCase()}`);
     video.currentTime = 0;
     await new Promise<void>((resolve) => {
       if (video.readyState >= 2) resolve(); else video.addEventListener("loadeddata", () => resolve(), { once: true });
@@ -105,30 +120,41 @@ export default function Home() {
     recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data);
     const completed = new Promise<void>((resolve) => { recorder.onstop = () => resolve(); });
     recorder.start(250);
-    const draw = () => {
-      if (!video || video.ended || video.paused) {
+    let stopped = false;
+    const draw = async () => {
+      if (stopped || video.ended || video.paused) {
         if (recorder.state !== "inactive") recorder.stop();
         return;
       }
-      const context = canvas.getContext("2d");
-      if (context) {
-        context.imageSmoothingEnabled = true;
-        context.imageSmoothingQuality = "high";
-        context.filter = enhance ? "contrast(1.04) saturate(1.04)" : "none";
-        context.drawImage(video, 0, 0, width, height);
-        context.filter = "none";
+      try {
+        if (activeAi && enhance) {
+          const rendered = await aiUpscaleFrame(video, canvas, activeAi);
+          setOutputSize({ width: rendered.width, height: rendered.height });
+        } else {
+          const context = canvas.getContext("2d");
+          if (context) {
+            context.imageSmoothingEnabled = true;
+            context.imageSmoothingQuality = "high";
+            context.filter = enhance ? "contrast(1.04) saturate(1.04)" : "none";
+            context.drawImage(video, 0, 0, width, height);
+            context.filter = "none";
+          }
+        }
+      } catch {
+        activeAi = null;
+        setAiStatus("AI FRAME ERROR — USING CANVAS");
       }
       setProgress(Math.min(99, (video.currentTime / video.duration) * 100));
-      requestAnimationFrame(draw);
+      requestAnimationFrame(() => void draw());
     };
-    video.onended = () => { if (recorder.state !== "inactive") recorder.stop(); };
+    video.onended = () => { stopped = true; if (recorder.state !== "inactive") recorder.stop(); };
     await video.play();
-    draw();
+    void draw();
     await completed;
     const blob = new Blob(chunks, { type: "video/webm" });
     if (outputUrl) URL.revokeObjectURL(outputUrl);
     setOutputUrl(URL.createObjectURL(blob)); setProgress(100); setStage("done");
-    toast.success("Upscale complete. Your file stayed in this browser.");
+    toast.success(activeAi ? "AI upscale complete. Your file stayed in this browser." : "Upscale complete. Your file stayed in this browser.");
   };
 
   const download = () => {
@@ -169,9 +195,9 @@ export default function Home() {
             <div className="preview-caption"><span>INPUT / {videoRef.current?.videoWidth || "—"} × {videoRef.current?.videoHeight || "—"}</span><span className="caption-rule" /><span>OUTPUT / {outputSize.width || "—"} × {outputSize.height || "—"}</span></div>
           </div>}
 
-          <div className="controls-panel"><div className="instrument-strip"><span><b>MODE</b> {enhance ? "CLEAN SIGNAL" : "NEUTRAL"}</span><span><b>OUTPUT</b> {scale}× WEBM</span><span><b>STORAGE</b> THIS DEVICE</span></div>
+          <div className="controls-panel"><div className="instrument-strip"><span><b>MODE</b> {enhance ? "AI ENHANCE" : "NEUTRAL"}</span><span><b>MODEL</b> {enhance ? aiStatus : "OFF"}</span><span><b>OUTPUT</b> {scale}× WEBM</span><span><b>STORAGE</b> THIS DEVICE</span></div>
             <div className="control-group"><span className="eyebrow">SCALE</span><div className="scale-options">{[2, 3, 4].map((value) => <button key={value} className={scale === value ? "scale-option selected" : "scale-option"} onClick={() => setScale(value)} disabled={stage === "processing"}><b>{value}×</b><small>{value === 2 ? "Balanced" : value === 3 ? "Detailed" : "Maximum"}</small></button>)}</div></div>
-            <div className="control-group enhancement"><span className="eyebrow">ENHANCEMENT</span><button className={enhance ? "toggle-row enabled" : "toggle-row"} onClick={() => setEnhance(!enhance)}><span className="toggle"><span /></span><span><b>Clean signal</b><small>Gentle contrast and color lift</small></span><WandSparkles size={17} /></button></div>
+            <div className="control-group enhancement"><span className="eyebrow">ENHANCEMENT</span><button className={enhance ? "toggle-row enabled" : "toggle-row"} onClick={() => setEnhance(!enhance)}><span className="toggle"><span /></span><span><b>AI detail recovery</b><small>Real-ESRGAN when supported · Canvas fallback</small></span><WandSparkles size={17} /></button></div>
             <div className="action-row"><div className="format-note"><Info size={15} /><span>Exports as WebM · processed in real time</span></div>{stage === "done" ? <button className="coral-button" onClick={download}><Download size={17} /> Download result</button> : <button className="coral-button" onClick={upscale} disabled={stage === "idle" || stage === "processing"}>{stage === "processing" ? "Rendering…" : <><Play size={16} fill="currentColor" /> Upscale locally</>}</button>}</div>
           </div>
 
