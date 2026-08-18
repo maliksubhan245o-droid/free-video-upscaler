@@ -26,6 +26,15 @@ const exportArt = "/manus-storage/export-complete_16c66d34.png";
 const targetOptions = [{ id: "1080p", label: "1080p", width: 1920 }, { id: "1440p", label: "1440p", width: 2560 }, { id: "2k", label: "2K", width: 2048 }, { id: "4k", label: "4K", width: 3840 }] as const;
 
 type TargetId = (typeof targetOptions)[number]["id"];
+function resolutionLabel(width: number, height: number) {
+  if (height >= 2160) return "4K";
+  if (width >= 2000 && height >= 1000 && height < 1440) return "2K";
+  if (height >= 1440) return "1440p";
+  if (height >= 1080) return "1080p";
+  if (height >= 720) return "720p";
+  return "SD";
+}
+
 function targetDimensions(sourceWidth: number, sourceHeight: number, target: TargetId) {
   const requested = targetOptions.find((item) => item.id === target)?.width ?? 1920;
   const width = Math.min(requested, 3840);
@@ -59,6 +68,8 @@ export default function Home() {
   const [imageUrl, setImageUrl] = useState("");
   const [imageOutputUrl, setImageOutputUrl] = useState("");
   const [imageStatus, setImageStatus] = useState("AI READY ON DEMAND");
+  const [videoDimensions, setVideoDimensions] = useState({ width: 0, height: 0 });
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
   const [sourceUrl, setSourceUrl] = useState("");
   const [outputUrl, setOutputUrl] = useState("");
   const [target, setTarget] = useState<TargetId>("1080p");
@@ -97,6 +108,7 @@ export default function Home() {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
     if (imageOutputUrl) URL.revokeObjectURL(imageOutputUrl);
     setImageFile(nextFile); setImageUrl(URL.createObjectURL(nextFile)); setImageOutputUrl(""); setImageStatus("AI READY ON DEMAND");
+    const probe = new Image(); probe.src = URL.createObjectURL(nextFile); probe.onload = () => { setImageDimensions({ width: probe.naturalWidth, height: probe.naturalHeight }); URL.revokeObjectURL(probe.src); };
   };
 
   const upscaleImage = async () => {
@@ -124,7 +136,7 @@ export default function Home() {
   const reset = () => {
     if (sourceUrl) URL.revokeObjectURL(sourceUrl);
     if (outputUrl) URL.revokeObjectURL(outputUrl);
-    setFile(null); setSourceUrl(""); setOutputUrl(""); setStage("idle"); setProgress(0); setDuration(0); setImageFile(null); setImageUrl(""); setImageOutputUrl("");
+    setFile(null); setSourceUrl(""); setOutputUrl(""); setStage("idle"); setProgress(0); setDuration(0); setVideoDimensions({ width: 0, height: 0 }); setImageFile(null); setImageUrl(""); setImageOutputUrl(""); setImageDimensions({ width: 0, height: 0 });
   };
 
   const upscale = async () => {
@@ -237,7 +249,7 @@ export default function Home() {
 
           {mode === "video" && stage !== "idle" && <div className="loaded-panel">
             <div className="preview-header"><div className="file-meta"><div className="file-icon"><FileVideo size={20} /></div><div><strong>{file?.name}</strong><span>{formatBytes(file?.size || 0)} · {videoRef.current?.videoWidth || "—"} × {videoRef.current?.videoHeight || "—"} · {formatTime(duration)}</span></div></div><button className="icon-button" onClick={reset} aria-label="Remove video"><X size={18} /></button></div>
-            <div className="video-stage"><video ref={videoRef} src={sourceUrl} controls={stage !== "processing"} onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)} className={outputUrl ? "has-output" : ""} /><canvas ref={canvasRef} className="render-canvas" />{stage === "processing" && <div className="processing-overlay"><Sparkles size={22} /><span>Rendering locally</span><strong>{Math.round(progress)}%</strong></div>}</div>
+            <div className="video-stage"><video ref={videoRef} src={sourceUrl} controls={stage !== "processing"} onLoadedMetadata={(e) => { setDuration(e.currentTarget.duration); setVideoDimensions({ width: e.currentTarget.videoWidth, height: e.currentTarget.videoHeight }); }} className={outputUrl ? "has-output" : ""} /><canvas ref={canvasRef} className="render-canvas" />{videoDimensions.width > 0 && <div className="resolution-badge"><b>{resolutionLabel(videoDimensions.width, videoDimensions.height)}</b><span>{videoDimensions.width} × {videoDimensions.height}</span></div>}{stage === "processing" && <div className="processing-overlay"><Sparkles size={22} /><span>Rendering locally</span><strong>{Math.round(progress)}%</strong></div>}</div>
             <div className="preview-caption"><span>INPUT / {videoRef.current?.videoWidth || "—"} × {videoRef.current?.videoHeight || "—"}</span><span className="caption-rule" /><span>OUTPUT / {outputSize.width || "—"} × {outputSize.height || "—"}</span></div>
           </div>}
 
@@ -246,7 +258,7 @@ export default function Home() {
             <div className="control-group enhancement"><span className="eyebrow">ENHANCEMENT</span><button className={enhance ? "toggle-row enabled" : "toggle-row"} onClick={() => setEnhance(!enhance)}><span className="toggle"><span /></span><span><b>AI detail recovery</b><small>Real-ESRGAN when supported · Canvas fallback</small></span><WandSparkles size={17} /></button></div>
                         <div className="action-row"><div className="format-note"><Info size={15} /><span>Exports as WebM · processed in real time</span></div>{stage === "done" ? <button className="coral-button" onClick={download}><Download size={17} /> Download result</button> : <button className="coral-button" onClick={upscale} disabled={stage === "idle" || stage === "processing"}>{stage === "processing" ? "Rendering…" : <><Play size={16} fill="currentColor" /> Upscale locally</>}</button>}</div>
           </div>}
-          {mode === "image" && <div className="image-workspace"><input ref={imageInputRef} type="file" accept="image/*" hidden onChange={(e) => loadImage(e.target.files?.[0])} />{!imageUrl ? <div className="image-drop"><div className="upload-symbol"><Upload size={22} /></div><span className="eyebrow">AI IMAGE UPSCALER</span><h3>Give a still frame<br /><em>more signal.</em></h3><p>PNG, JPG, WebP · processed locally</p><button className="coral-button" onClick={() => imageInputRef.current?.click()}>Choose image <ArrowUpRight size={17} /></button></div> : <><div className="image-preview-grid"><div><span className="eyebrow">SOURCE</span><img src={imageUrl} alt="Selected source" /></div><div><span className="eyebrow">AI OUTPUT</span>{imageOutputUrl ? <img src={imageOutputUrl} alt="AI upscaled result" /> : <div className="image-empty"><Sparkles size={22} /><span>{imageStatus}</span></div>}</div></div><div className="image-actions"><span className="format-note"><Info size={15} /> Real-ESRGAN x2 · {imageStatus}</span>{imageOutputUrl ? <button className="coral-button" onClick={downloadImage}><Download size={17} /> Download PNG</button> : <button className="coral-button" onClick={upscaleImage}><WandSparkles size={17} /> Upscale image</button>}</div></>}</div>}
+          {mode === "image" && <div className="image-workspace"><input ref={imageInputRef} type="file" accept="image/*" hidden onChange={(e) => loadImage(e.target.files?.[0])} />{!imageUrl ? <div className="image-drop"><div className="upload-symbol"><Upload size={22} /></div><span className="eyebrow">AI IMAGE UPSCALER</span><h3>Give a still frame<br /><em>more signal.</em></h3><p>PNG, JPG, WebP · processed locally</p><button className="coral-button" onClick={() => imageInputRef.current?.click()}>Choose image <ArrowUpRight size={17} /></button></div> : <><div className="image-preview-grid"><div><span className="eyebrow">SOURCE</span><div className="image-frame"><img src={imageUrl} alt="Selected source" />{imageDimensions.width > 0 && <div className="resolution-badge"><b>{resolutionLabel(imageDimensions.width, imageDimensions.height)}</b><span>{imageDimensions.width} × {imageDimensions.height}</span></div>}</div></div><div><span className="eyebrow">AI OUTPUT</span>{imageOutputUrl ? <div className="image-frame"><img src={imageOutputUrl} alt="AI upscaled result" /><div className="resolution-badge"><b>AI 2×</b><span>{imageDimensions.width * 2} × {imageDimensions.height * 2}</span></div></div> : <div className="image-empty"><Sparkles size={22} /><span>{imageStatus}</span></div>}</div></div><div className="image-actions"><span className="format-note"><Info size={15} /> Real-ESRGAN x2 · {imageStatus}</span>{imageOutputUrl ? <button className="coral-button" onClick={downloadImage}><Download size={17} /> Download PNG</button> : <button className="coral-button" onClick={upscaleImage}><WandSparkles size={17} /> Upscale image</button>}</div></>}</div>}
           {stage === "done" && <div className="done-banner"><div className="done-icon"><Check size={18} /></div><div><strong>Your enlarged file is ready.</strong><span>Nothing was sent to a server. Download it now, or reset to work on another clip.</span></div><button className="text-button" onClick={reset}><RotateCcw size={15} /> New video</button></div>}
         </section>
       </section>

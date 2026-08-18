@@ -116,3 +116,10 @@ h1 em,h3 em { color:var(--coral); font-style:italic; }
 .image-actions .coral-button { margin:0; }
 @media (max-width:900px) { .heading-readouts { flex-wrap:wrap; justify-content:flex-end; } }
 @media (max-width:620px) { .image-preview-grid { grid-template-columns:1fr; } .image-preview-grid img, .image-empty { height:260px; } .image-actions { align-items:flex-start; flex-direction:column; } .image-actions .coral-button { width:100%; justify-content:center; } .heading-readouts { justify-content:flex-start; } }
+
+/* Enhance Pilot source-resolution badges: compact technical readouts anchored to preview corners. */
+.resolution-badge { position:absolute; top:12px; right:12px; z-index:3; display:flex; align-items:baseline; gap:8px; padding:8px 10px; border:1px solid var(--coral); background:rgba(14,17,19,.88); color:var(--ink); box-shadow:3px 3px 0 rgba(0,0,0,.22); font:500 9px 'IBM Plex Mono',monospace; letter-spacing:.04em; }
+.resolution-badge b { color:var(--coral); font-size:12px; letter-spacing:.08em; }
+.resolution-badge span { color:var(--muted); }
+.image-frame { position:relative; }
+.image-frame img { margin-top:13px; }
