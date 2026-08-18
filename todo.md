@@ -1,7 +1,8 @@
-# Enhance Pilot dark-theme update
+# Enhance Pilot resolution and image upscaler update
 
-- [x] Rename visible product branding from Frame / Lift to Enhance Pilot.
-- [x] Replace the warm paper theme with a polished dark graphite interface and high-contrast coral/mint accents.
-- [x] Update metadata, headings, status labels, and footer copy to use Enhance Pilot.
-- [x] Verify responsive screenshots and production build.
-- [ ] Publish the updated version to GitHub Pages.
+- [x] Replace 2×/3×/4× video controls with 1080p, 1440p, 2K, and 4K target-resolution options.
+- [x] Preserve aspect ratio and cap output dimensions safely for the selected target.
+- [x] Research and select a browser-compatible AI image upscaling model.
+- [x] Add an Image Upscaler mode with upload, preview, AI enhancement, and download.
+- [x] Keep a Canvas fallback when the AI image model or GPU is unavailable.
+- [x] Verify responsive UI, type checking, production build, and GitHub Pages deployment.
