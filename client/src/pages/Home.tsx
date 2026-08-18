@@ -166,7 +166,7 @@ export default function Home() {
   return (
     <main className="atelier-shell">
       <header className="topbar">
-        <div className="brand-lockup"><img src={logoUrl} alt="Frame Lift mark" /><span className="wordmark">frame <i>/</i> lift</span></div>
+        <div className="brand-lockup"><img src={logoUrl} alt="Enhance Pilot mark" /><span className="wordmark">enhance <i>·</i> pilot</span></div>
         <div className="topbar-note"><span className="live-dot" /> LOCAL PROCESSING <span className="topbar-divider" /> NO UPLOADS</div>
         <a className="github-link" href="https://github.com" target="_blank" rel="noreferrer">SOURCE ON GITHUB <ArrowUpRight size={15} /></a>
       </header>
@@ -174,8 +174,8 @@ export default function Home() {
       <section className="workbench">
         <aside className="editorial-rail">
           <div className="rail-index">01 — VIDEO ENHANCEMENT</div>
-          <h1>Sharpen<br /><em>the signal.</em></h1>
-          <p className="dek">A free, private browser workbench for making small footage feel ready for the big screen.</p>
+          <h1>Pilot<br /><em>the detail.</em></h1>
+          <p className="dek">A free, private AI workbench for turning ordinary footage into a cleaner signal.</p>
           <div className="rail-art"><img src={privacyArt} alt="Illustration of local video processing" /></div>
           <div className="rail-foot"><LockKeyhole size={15} /><span>Your footage never leaves this tab.</span></div>
         </aside>
@@ -205,7 +205,7 @@ export default function Home() {
         </section>
       </section>
 
-      <footer className="footer"><div><Film size={15} /> <span className="footer-wordmark">frame / lift</span> <span>— free browser video enhancement</span></div><div className="footer-specs"><span>NO ACCOUNT</span><span>NO CLOUD</span><span>OPEN SOURCE READY</span></div></footer>
+      <footer className="footer"><div><Film size={15} /> <span className="footer-wordmark">enhance pilot</span> <span>— free browser AI enhancement</span></div><div className="footer-specs"><span>NO ACCOUNT</span><span>NO CLOUD</span><span>OPEN SOURCE READY</span></div></footer>
       <div className="sr-only"><img src={comparisonArt} alt="" /><img src={exportArt} alt="" /></div>
     </main>
   );
