@@ -1,6 +1,6 @@
-# Enhance Pilot resolution badge update
+# GitHub Pages 404 repair
 
-- [x] Detect uploaded video dimensions and classify a source label such as 720p, 1080p, 1440p, 2K, or 4K.
-- [x] Detect uploaded image dimensions and classify the same resolution label family.
-- [x] Show the source label and exact pixel dimensions in a corner badge on video and image previews.
-- [x] Verify responsive placement, type checking, production build, and GitHub Pages deployment.
+- [ ] Inspect the latest Pages workflow status, logs, artifact, and Pages configuration.
+- [ ] Identify whether the 404 is caused by a failed deployment, missing Pages enablement, or an incorrect base/path configuration.
+- [ ] Apply the smallest safe deployment fix and rerun Pages.
+- [ ] Verify the public Enhance Pilot URL and report the exact action to the user.
