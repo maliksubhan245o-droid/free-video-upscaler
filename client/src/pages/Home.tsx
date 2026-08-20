@@ -16,7 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { aiUpscaleFrame, aiUpscaleImage, loadAiSession, type AiSession } from "@/lib/aiUpscaler";
+import { aiUpscaleFrame, aiUpscaleImage, loadAiSession, localEnhanceImage, type AiSession } from "@/lib/aiUpscaler";
 
 const logoUrl = "/manus-storage/signal-frame-logo_e57c72af.png";
 const emptyArt = "/manus-storage/calibration-empty-state_2ddaaed8.png";
@@ -114,18 +114,23 @@ export default function Home() {
   const upscaleImage = async () => {
     if (!imageUrl || !imageFile) return;
     setImageStatus("LOADING REAL-ESRGAN");
+    const image = new Image();
+    image.src = imageUrl;
+    await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("Image could not load")); });
+    const canvas = document.createElement("canvas");
     try {
       const activeAi = aiSession || await loadAiSession(setImageStatus);
       setAiSession(activeAi);
-      const image = new Image();
-      image.src = imageUrl;
-      await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("Image could not load")); });
-      const canvas = document.createElement("canvas");
       const rendered = await aiUpscaleImage(image, image.naturalWidth, image.naturalHeight, canvas, activeAi);
       canvas.toBlob((blob) => { if (blob) setImageOutputUrl(URL.createObjectURL(blob)); }, "image/png");
       setImageStatus(`REAL-ESRGAN / ${activeAi.runtime.toUpperCase()} · ${rendered.width}×${rendered.height}`);
       toast.success("AI image upscale complete. Your image stayed in this browser.");
-    } catch { setImageStatus("AI UNAVAILABLE — TRY AGAIN"); toast.error("The AI image model could not load on this device."); }
+    } catch {
+      const rendered = localEnhanceImage(image, image.naturalWidth, image.naturalHeight, canvas, 2);
+      canvas.toBlob((blob) => { if (blob) setImageOutputUrl(URL.createObjectURL(blob)); }, "image/png");
+      setImageStatus(`LOCAL FALLBACK / CANVAS · ${rendered.width}×${rendered.height}`);
+      toast("AI model unavailable; a high-quality local image enhancement was created instead.");
+    }
   };
 
   const downloadImage = () => {
@@ -270,7 +275,7 @@ export default function Home() {
             <div className="control-group enhancement"><span className="eyebrow">ENHANCEMENT</span><button className={enhance ? "toggle-row enabled" : "toggle-row"} onClick={() => setEnhance(!enhance)}><span className="toggle"><span /></span><span><b>AI detail recovery</b><small>Real-ESRGAN when supported · Canvas fallback</small></span><WandSparkles size={17} /></button></div>
                         <div className="action-row"><div className="format-note"><Info size={15} /><span>Exports as WebM · processed in real time</span></div>{stage === "done" ? <button className="coral-button" onClick={download}><Download size={17} /> Download result</button> : <button className="coral-button" onClick={upscale} disabled={stage === "idle" || stage === "processing"}>{stage === "processing" ? "Rendering…" : <><Play size={16} fill="currentColor" /> Upscale locally</>}</button>}</div>
           </div>}
-          {mode === "image" && <div className="image-workspace"><input ref={imageInputRef} type="file" accept="image/*" hidden onChange={(e) => loadImage(e.target.files?.[0])} />{!imageUrl ? <div className="image-drop"><div className="upload-symbol"><Upload size={22} /></div><span className="eyebrow">AI IMAGE UPSCALER</span><h3>Give a still frame<br /><em>more signal.</em></h3><p>PNG, JPG, WebP · processed locally</p><button className="coral-button" onClick={() => imageInputRef.current?.click()}>Choose image <ArrowUpRight size={17} /></button></div> : <><div className="image-preview-grid"><div><span className="eyebrow">SOURCE</span><div className="image-frame"><img src={imageUrl} alt="Selected source" />{imageDimensions.width > 0 && <div className="resolution-badge"><b>{resolutionLabel(imageDimensions.width, imageDimensions.height)}</b><span>{imageDimensions.width} × {imageDimensions.height}</span></div>}</div></div><div><span className="eyebrow">AI OUTPUT</span>{imageOutputUrl ? <div className="image-frame"><img src={imageOutputUrl} alt="AI upscaled result" /><div className="resolution-badge"><b>AI 2×</b><span>{imageDimensions.width * 2} × {imageDimensions.height * 2}</span></div></div> : <div className="image-empty"><Sparkles size={22} /><span>{imageStatus}</span></div>}</div></div><div className="image-actions"><span className="format-note"><Info size={15} /> Real-ESRGAN x2 · {imageStatus}</span>{imageOutputUrl ? <button className="coral-button" onClick={downloadImage}><Download size={17} /> Download PNG</button> : <button className="coral-button" onClick={upscaleImage}><WandSparkles size={17} /> Upscale image</button>}</div></>}</div>}
+          {mode === "image" && <div className="image-workspace"><input ref={imageInputRef} type="file" accept="image/*" hidden onChange={(e) => loadImage(e.target.files?.[0])} />{!imageUrl ? <div className="image-drop"><div className="upload-symbol"><Upload size={22} /></div><span className="eyebrow">AI IMAGE UPSCALER</span><h3>Give a still frame<br /><em>more signal.</em></h3><p>PNG, JPG, WebP · processed locally</p><button className="coral-button" onClick={() => imageInputRef.current?.click()}>Choose image <ArrowUpRight size={17} /></button></div> : <><div className="image-preview-grid"><div><span className="eyebrow">SOURCE</span><div className="image-frame"><img src={imageUrl} alt="Selected source" />{imageDimensions.width > 0 && <div className="resolution-badge"><b>{resolutionLabel(imageDimensions.width, imageDimensions.height)}</b><span>{imageDimensions.width} × {imageDimensions.height}</span></div>}</div></div><div><span className="eyebrow">AI OUTPUT</span>{imageOutputUrl ? <div className="image-frame"><img src={imageOutputUrl} alt="AI upscaled result" /><div className="resolution-badge"><b>AI 2×</b><span>{imageDimensions.width * 2} × {imageDimensions.height * 2}</span></div></div> : <div className="image-empty"><Sparkles size={22} /><span>{imageStatus}</span></div>}</div></div><div className="image-actions"><span className="format-note"><Info size={15} /> {imageStatus.includes("LOCAL FALLBACK") ? "Local enhancement x2" : "Real-ESRGAN x2"} · {imageStatus}</span>{imageOutputUrl ? <button className="coral-button" onClick={downloadImage}><Download size={17} /> Download PNG</button> : <button className="coral-button" onClick={upscaleImage}><WandSparkles size={17} /> Upscale image</button>}</div></>}</div>}
           {stage === "done" && <div className="done-banner"><div className="done-icon"><Check size={18} /></div><div><strong>Your enlarged file is ready.</strong><span>Nothing was sent to a server. Download it now, or reset to work on another clip.</span></div><button className="text-button" onClick={reset}><RotateCcw size={15} /> New video</button></div>}
         </section>
       </section>

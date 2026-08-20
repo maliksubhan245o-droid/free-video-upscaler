@@ -70,6 +70,27 @@ export async function aiUpscaleImage(
   return { width: outputWidth, height: outputHeight };
 }
 
+export function localEnhanceImage(
+  source: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number,
+  outputCanvas: HTMLCanvasElement,
+  scale = 2,
+) {
+  const width = Math.min(sourceWidth * scale, 4096);
+  const height = Math.round((width / sourceWidth) * sourceHeight);
+  outputCanvas.width = width;
+  outputCanvas.height = height;
+  const context = outputCanvas.getContext("2d");
+  if (!context) throw new Error("Canvas is unavailable in this browser.");
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.filter = "contrast(1.06) saturate(1.08) brightness(1.02)";
+  context.drawImage(source, 0, 0, width, height);
+  context.filter = "none";
+  return { width, height };
+}
+
 export async function aiUpscaleFrame(
   source: HTMLVideoElement,
   outputCanvas: HTMLCanvasElement,

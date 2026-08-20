@@ -1,7 +1,7 @@
-# Enhance Pilot cosmic-energy video theme
+# Enhance Pilot image enhancement repair
 
-- [x] Inspect uploaded video dimensions, duration, codec, and visual treatment.
-- [x] Copy and upload the user-provided video as a web asset outside the project source tree.
-- [x] Apply dark crimson/magenta cosmic-energy colors and bold typography.
-- [x] Add the uploaded video as a readable background layer with dark overlays.
-- [x] Verify responsive contrast, type checking, production build, and GitHub Pages deployment readiness.
+- [x] Inspect the AI image model loader and browser failure path.
+- [x] Add a reliable local image enhancement fallback that always creates output.
+- [x] Show an explicit AI or local fallback status in the image output panel.
+- [x] Verify the uploaded portrait image produces a downloadable enhanced PNG path.
+- [x] Build, checkpoint, publish, and report the fixed behavior.
