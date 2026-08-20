@@ -1,6 +1,7 @@
-# GitHub Pages 404 repair
+# Enhance Pilot 1% processing stall repair
 
-- [ ] Inspect the latest Pages workflow status, logs, artifact, and Pages configuration.
-- [ ] Identify whether the 404 is caused by a failed deployment, missing Pages enablement, or an incorrect base/path configuration.
-- [ ] Apply the smallest safe deployment fix and rerun Pages.
-- [ ] Verify the public Enhance Pilot URL and report the exact action to the user.
+- [x] Inspect video processing code and browser logs for the 1% stall.
+- [x] Ensure AI model loading cannot block or deadlock frame rendering.
+- [x] Add a clear AI-loading state and a reliable Canvas fallback path.
+- [x] Verify progress behavior logic for the uploaded 46-second 1080p MP4.
+- [ ] Build, checkpoint, publish, and report the fastest working settings.

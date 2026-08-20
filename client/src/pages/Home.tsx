@@ -148,8 +148,13 @@ export default function Home() {
       return;
     }
     setStage("processing"); setProgress(1);
-    let activeAi = aiSession;
-    if (enhance && !activeAi) {
+    const useAiForVideo = enhance && video.duration <= 8 && video.videoWidth <= 1920;
+    let activeAi = useAiForVideo ? aiSession : null;
+    if (enhance && !useAiForVideo) {
+      setAiStatus("LONG VIDEO — USING FAST CANVAS FALLBACK");
+      toast("For videos longer than 8 seconds, fast local Canvas mode is used so processing does not stall.");
+    }
+    if (useAiForVideo && !activeAi) {
       try {
         setAiStatus("LOADING REAL-ESRGAN");
         activeAi = await loadAiSession(setAiStatus);
@@ -184,7 +189,7 @@ export default function Home() {
         return;
       }
       try {
-        if (activeAi && enhance) {
+        if (activeAi && useAiForVideo) {
           const rendered = await aiUpscaleFrame(video, aiFrameCanvas, activeAi);
           canvas.getContext("2d")?.drawImage(aiFrameCanvas, 0, 0, width, height);
           setOutputSize({ width, height });
@@ -212,7 +217,7 @@ export default function Home() {
     const blob = new Blob(chunks, { type: "video/webm" });
     if (outputUrl) URL.revokeObjectURL(outputUrl);
     setOutputUrl(URL.createObjectURL(blob)); setProgress(100); setStage("done");
-    toast.success(activeAi ? "AI upscale complete. Your file stayed in this browser." : "Upscale complete. Your file stayed in this browser.");
+    toast.success(activeAi && useAiForVideo ? "AI upscale complete. Your file stayed in this browser." : "Upscale complete. Your file stayed in this browser.");
   };
 
   const download = () => {
