@@ -123,3 +123,33 @@ h1 em,h3 em { color:var(--coral); font-style:italic; }
 .resolution-badge span { color:var(--muted); }
 .image-frame { position:relative; }
 .image-frame img { margin-top:13px; }
+
+/* Enhance Pilot landing system: kinetic signal graphics and editorial hierarchy lead into the workbench. */
+.landing-hero { min-height:clamp(570px,72vh,760px); max-width:1440px; margin:0 auto; position:relative; display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:7vw; overflow:hidden; border-bottom:1px solid var(--line); }
+.hero-grid { position:absolute; inset:0; opacity:.35; background-image:linear-gradient(rgba(117,200,170,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(117,200,170,.08) 1px,transparent 1px); background-size:64px 64px; mask-image:linear-gradient(90deg,black,transparent 88%); animation:grid-drift 18s linear infinite; }
+.hero-grid:after { content:''; position:absolute; inset:0; background:radial-gradient(circle at 52% 46%,rgba(117,200,170,.18),transparent 22rem); animation:signal-breathe 4.5s ease-in-out infinite; }
+.hero-copy { position:relative; z-index:2; padding:100px 0 110px; animation:hero-enter .7s var(--ease-out) both; }
+.hero-kicker { color:var(--green); display:flex; align-items:center; gap:9px; }
+.hero-copy h2 { max-width:720px; font:600 clamp(64px,9vw,148px)/.84 'Fraunces',serif; letter-spacing:-.07em; margin:28px 0 32px; }
+.hero-copy h2 em { color:var(--coral); font-style:italic; }
+.hero-copy p { max-width:440px; color:var(--muted); font-size:18px; line-height:1.55; }
+.hero-actions { display:flex; align-items:center; gap:22px; margin-top:36px; }
+.hero-actions .coral-button { margin:0; text-decoration:none; }
+.hero-note { color:var(--muted); font:500 9px 'IBM Plex Mono',monospace; letter-spacing:.1em; }
+.hero-instrument { position:relative; z-index:2; min-height:285px; padding:20px; border:1px solid rgba(117,200,170,.34); background:linear-gradient(145deg,rgba(117,200,170,.08),rgba(255,107,87,.025)); box-shadow:20px 20px 0 rgba(0,0,0,.16); transform:rotate(3deg); animation:instrument-float 7s ease-in-out infinite; }
+.instrument-topline,.instrument-readout { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font:500 9px 'IBM Plex Mono',monospace; letter-spacing:.1em; }
+.instrument-topline { border-bottom:1px solid var(--line); padding-bottom:15px; }
+.instrument-topline span:last-child { color:var(--coral); }
+.signal-wave { height:160px; display:flex; justify-content:center; align-items:center; gap:8px; border-bottom:1px solid var(--line); }
+.signal-wave i { display:block; width:7px; height:28px; background:var(--green); opacity:.72; animation:signal-bar 1.2s ease-in-out infinite alternate; }
+.signal-wave i:nth-child(2n) { animation-delay:.13s; height:68px; background:var(--coral); }.signal-wave i:nth-child(3n) { animation-delay:.26s; height:112px; }.signal-wave i:nth-child(4n) { animation-delay:.39s; height:46px; }
+.instrument-readout { padding-top:15px; }.instrument-readout strong { color:var(--green); }.instrument-readout b { color:var(--coral); font-weight:500; }
+.workbench { scroll-margin-top:24px; }
+@keyframes grid-drift { from { transform:translate3d(0,0,0); } to { transform:translate3d(64px,64px,0); } }
+@keyframes signal-breathe { 0%,100% { opacity:.4; transform:scale(.96); } 50% { opacity:1; transform:scale(1.04); } }
+@keyframes hero-enter { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:none; } }
+@keyframes instrument-float { 0%,100% { transform:rotate(3deg) translateY(0); } 50% { transform:rotate(1deg) translateY(-12px); } }
+@keyframes signal-bar { from { transform:scaleY(.55); opacity:.45; } to { transform:scaleY(1); opacity:1; } }
+@media (max-width:900px) { .landing-hero { min-height:auto; grid-template-columns:1fr; gap:44px; padding:70px 0 90px; } .hero-copy { padding:0; } .hero-copy h2 { font-size:clamp(62px,16vw,110px); } .hero-instrument { width:min(100%,520px); margin:0 auto; transform:rotate(2deg); } }
+@media (max-width:620px) { .hero-copy p { font-size:16px; }.hero-actions { align-items:flex-start; flex-direction:column; gap:16px; }.hero-instrument { min-height:230px; }.signal-wave { height:125px; } }
+@media (prefers-reduced-motion:reduce) { .hero-grid,.hero-grid:after,.hero-copy,.hero-instrument,.signal-wave i { animation:none; }.hero-copy { opacity:1; transform:none; } }

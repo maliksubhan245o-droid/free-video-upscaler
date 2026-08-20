@@ -234,7 +234,13 @@ export default function Home() {
         <a className="github-link" href="https://github.com" target="_blank" rel="noreferrer">SOURCE ON GITHUB <ArrowUpRight size={15} /></a>
       </header>
 
-      <section className="workbench">
+      <section className="landing-hero" aria-labelledby="landing-title">
+        <div className="hero-grid" aria-hidden="true" /><div className="ambient-orbit orbit-one" aria-hidden="true" /><div className="ambient-orbit orbit-two" aria-hidden="true" />
+        <div className="hero-copy"><span className="eyebrow hero-kicker"><span className="live-dot" /> BROWSER-BASED SUPER RESOLUTION</span><h2 id="landing-title">Make every<br /><em>frame matter.</em></h2><p>Enhance Pilot turns everyday footage and stills into a cleaner, larger signal — privately, locally, and without a subscription.</p><div className="hero-actions"><a className="coral-button" href="#workbench"><Play size={16} fill="currentColor" /> Enter the workbench</a><span className="hero-note">NO UPLOADS · REAL-ESRGAN READY</span></div></div>
+        <div className="hero-instrument" aria-hidden="true"><div className="instrument-topline"><span>EP / 001</span><span>LIVE SIGNAL MAP</span></div><div className="signal-wave"><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /></div><div className="instrument-readout"><strong>LOCAL</strong><span>WEBGPU / WASM</span><b>1080 → 4K</b></div></div>
+      </section>
+
+      <section className="workbench" id="workbench">
         <aside className="editorial-rail">
           <div className="rail-index">01 — VIDEO ENHANCEMENT</div>
           <h1>Pilot<br /><em>the detail.</em></h1>
