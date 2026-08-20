@@ -1,7 +1,7 @@
-# Free-only enhancement improvement
+# Reliable image mode repair
 
-- [x] Audit current image and video enhancement paths and define realistic free quality targets.
-- [x] Make image enhancement always produce a local output without paid APIs.
-- [x] Make video enhancement always progress with local processing and clear AI/fallback states.
-- [x] Test representative image and video flows, including failure recovery logic.
-- [x] Build, checkpoint, publish, and explain the free quality limits.
+- [x] Confirm the current deployed image handler still attempts AI before producing output.
+- [x] Make local enhancement the primary image processing path.
+- [x] Keep AI optional only when explicitly available, without surfacing a blocking error.
+- [x] Verify the image output path, download flow, type checking, and production build.
+- [x] Publish and report the reliable image workflow.
