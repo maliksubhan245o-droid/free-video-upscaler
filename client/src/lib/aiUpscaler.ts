@@ -1,7 +1,7 @@
 /* Precision Atelier AI layer: local-only ONNX inference, WebGPU first, WASM fallback. Keep model status explicit; never imply AI when the model is not running. */
 import * as ort from "onnxruntime-web/webgpu";
 
-const MODEL_URL = "https://huggingface.co/SceneWorks/real-esrgan-onnx/resolve/main/real_esrgan_x2.onnx?download=true";
+const MODEL_URL = "/manus-storage/real-esrgan-x2_22c5672e.onnx";
 
 export type AiRuntime = "webgpu" | "wasm";
 export type AiSession = { session: ort.InferenceSession; runtime: AiRuntime; modelUrl: string };

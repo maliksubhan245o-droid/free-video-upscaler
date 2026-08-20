@@ -1,7 +1,6 @@
-# Reliable image mode repair
+# Free-tier cloud AI integration
 
-- [x] Confirm the current deployed image handler still attempts AI before producing output.
-- [x] Make local enhancement the primary image processing path.
-- [x] Keep AI optional only when explicitly available, without surfacing a blocking error.
-- [x] Verify the image output path, download flow, type checking, and production build.
-- [x] Publish and report the reliable image workflow.
+- [x] Select a real trained super-resolution model and self-hosted browser architecture.
+- [x] Upload the 64 MB Real-ESRGAN ONNX model to persistent web storage.
+- [x] Configure temporary-free local browser inference with AI status and local fallback.
+- [x] Verify type checking and production build; publish the self-hosted model path.
