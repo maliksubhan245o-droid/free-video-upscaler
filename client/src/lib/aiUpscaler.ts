@@ -88,6 +88,23 @@ export function localEnhanceImage(
   context.filter = "contrast(1.06) saturate(1.08) brightness(1.02)";
   context.drawImage(source, 0, 0, width, height);
   context.filter = "none";
+  const image = context.getImageData(0, 0, width, height);
+  const sourcePixels = new Uint8ClampedArray(image.data);
+  const stride = width * 4;
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const index = y * stride + x * 4;
+      for (let channel = 0; channel < 3; channel++) {
+        const value = sourcePixels[index + channel] * 5
+          - sourcePixels[index - 4 + channel]
+          - sourcePixels[index + 4 + channel]
+          - sourcePixels[index - stride + channel]
+          - sourcePixels[index + stride + channel];
+        image.data[index + channel] = Math.max(0, Math.min(255, Math.round(value)));
+      }
+    }
+  }
+  context.putImageData(image, 0, 0);
   return { width, height };
 }
 

@@ -1,7 +1,7 @@
-# Enhance Pilot image enhancement repair
+# Free-only enhancement improvement
 
-- [x] Inspect the AI image model loader and browser failure path.
-- [x] Add a reliable local image enhancement fallback that always creates output.
-- [x] Show an explicit AI or local fallback status in the image output panel.
-- [x] Verify the uploaded portrait image produces a downloadable enhanced PNG path.
-- [x] Build, checkpoint, publish, and report the fixed behavior.
+- [x] Audit current image and video enhancement paths and define realistic free quality targets.
+- [x] Make image enhancement always produce a local output without paid APIs.
+- [x] Make video enhancement always progress with local processing and clear AI/fallback states.
+- [x] Test representative image and video flows, including failure recovery logic.
+- [x] Build, checkpoint, publish, and explain the free quality limits.
