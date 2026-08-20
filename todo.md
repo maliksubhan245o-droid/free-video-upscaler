@@ -1,7 +1,7 @@
-# Enhance Pilot landing and motion upgrade
+# Enhance Pilot cosmic-energy video theme
 
-- [x] Add a dedicated animated landing hero before the upscaler workspace.
-- [x] Elevate typography with a stronger display hierarchy and technical labels.
-- [x] Add live background motion with reduced-motion accessibility support.
-- [x] Add subtle animated movement to the main workspace and processing states.
-- [x] Verify responsive layout, accessibility, type checking, production build, and deployment readiness.
+- [x] Inspect uploaded video dimensions, duration, codec, and visual treatment.
+- [x] Copy and upload the user-provided video as a web asset outside the project source tree.
+- [x] Apply dark crimson/magenta cosmic-energy colors and bold typography.
+- [x] Add the uploaded video as a readable background layer with dark overlays.
+- [x] Verify responsive contrast, type checking, production build, and GitHub Pages deployment readiness.
